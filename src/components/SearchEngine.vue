@@ -35,12 +35,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="link in links['0']">
+            <tr v-for="result in links">
               <td>
-                <a v-bind:href="link.url">{{link.title}}</a>
+                <a v-bind:href="result.url">{{result.title}}</a>
               </td>
               <td>
-                {{link.url}}
+                {{result.url}}
               </td>
             </tr>
           </tbody>
@@ -67,7 +67,7 @@ let config = {
 let app = Firebase.initializeApp(config);
 let db = app.database();
 
-let linkRef = db.ref('links')
+let linkRef = db.ref('links');
 
 export default {
   name: 'SearchEngine',
@@ -77,13 +77,13 @@ export default {
   data () {
     return {
       query: '',
-      results: []
+      results: [],
+      groupID: ''
     }
   },
   methods: {
     APIFetch: function(query){
       this.refreshFetch();
-      var request = [];
 
       axios({
         method: 'get',
@@ -93,13 +93,11 @@ export default {
           console.log(response.data.items);
           /* eslint-disable no-console */
           for (var i = 0; i < response.data.items.length; i++) {
-            request.push({
+            linkRef.push({
               title: response.data.items[i].title,
               url: response.data.items[i].link
             })
           }
-          this.fireBasePush(request);
-          this.resultSort();
       });
 
       axios({
@@ -111,7 +109,7 @@ export default {
         console.log(response.data);
         /* eslint-disable no-console */
         for (var i = 0; i < response.data.webPages.value.length; i++) {
-          request.push({
+          linkRef.push({
             title: response.data.webPages.value[i].name,
             url: response.data.webPages.value[i].url,
           })
@@ -122,10 +120,6 @@ export default {
     refreshFetch: function(){
       linkRef.remove();
       toastr.success("Search completed");
-    },
-
-    fireBasePush: function(data){
-      linkRef.push(data);
     },
 
     resultSort: function(){
