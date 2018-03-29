@@ -9,10 +9,19 @@
         <h3>Search</h3>
       </div>
       <div class="card-body">
-        <form id="form" class="form-inline" v-on:submit.prevent="APIFetch(query)">
+        <form id="form" class="form-inline" v-on:submit.prevent="APIFetch(query, filter)">
           <div class="form-group">
             <input type="text" id="search" placeholder="Search here" class="form-control" v-model="query">
           </div>
+          <div class="form-group">
+          <div class="col-auto my-1">
+            <select class="custom-select mr-sm-2" id="filter" v-model="filter">
+              <option selected>All</option>
+              <option value="1">Bing</option>
+              <option value="2">Google</option>
+            </select>
+          </div>
+        </div>
           <input type="submit" class="btn btn-primary mx-2" value="Search">
         </form>
       </div>
@@ -35,7 +44,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="result in links">
+            <tr v-for="result in results[0]">
               <td>
                 <a v-bind:href="result.url">{{result.title}}</a>
               </td>
@@ -77,6 +86,9 @@ export default {
   data () {
     return {
       query: '',
+      filter: 0,
+      queryGoogle: [],
+      queryBing: [],
       results: [],
       groupID: ''
     }
@@ -97,6 +109,10 @@ export default {
               title: response.data.items[i].title,
               url: response.data.items[i].link
             })
+            this.queryGoogle.push({
+              title: response.data.items[i].title,
+              url: response.data.items[i].link
+            })
           }
       });
 
@@ -111,21 +127,55 @@ export default {
         for (var i = 0; i < response.data.webPages.value.length; i++) {
           linkRef.push({
             title: response.data.webPages.value[i].name,
-            url: response.data.webPages.value[i].url,
+            url: response.data.webPages.value[i].url
+          })
+          this.queryBing.push({
+            title: response.data.webPages.value[i].name,
+            url: response.data.webPages.value[i].url
           })
         }
       });
+    this.resultSort();
     },
 
     refreshFetch: function(){
       linkRef.remove();
+      this.results = [];
+      this.queryBing = [];
+      this.queryGoogle = [];
       toastr.success("Search completed");
     },
 
     resultSort: function(){
-      for (var i = 0; i < this.links.length; i++) {
-        console.log(this.links);
+      if(this.filter == 1) {
+        this.results.push(this.queryBing);
+        console.log('1');
       }
+      else if(this.filter == 2){
+        this.results.push(this.queryGoogle);
+        console.log('2');
+      }
+      else {
+        this.results.push(this.links);
+        console.log('0');
+      }
+
+      /*this.links.sort(function(a, b) {
+        var linkA = a.url.toUpperCase(); // ignore upper and lowercase
+        var linkB = b.url.toUpperCase(); // ignore upper and lowercase
+        if (linkA < linkB) {
+          return -1;
+        }
+        if (linkA > linkB) {
+          return 1;
+        }
+
+        // links must be equal
+        return 0;
+      }); */
+
+      //this.results.push(this.links);
+      console.log(this.results);
     }
   }
 }
