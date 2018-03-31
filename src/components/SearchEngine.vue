@@ -42,6 +42,7 @@
           <v-data-table
             :headers="headers"
             :items="results[0]"
+            :rows-per-page-items="tableOpt"
             class="elevation-1 headline"
           >
             <template slot="items" slot-scope="props">
@@ -105,6 +106,7 @@ export default {
       searchRules: [
         v => !!v || 'Search required'
       ],
+      tableOpt: [10, {text:"All", value:-1}],
       filter: 0,
       queryGoogle: [],
       queryBing: [],
@@ -134,7 +136,7 @@ export default {
         url: 'https://www.googleapis.com/customsearch/v1?key=AIzaSyDvMAQgLw1lA_cz9QuyhKCSC7cwW7cgflY&cx=009623728814563280206:dto9xyi6jdy&q=' + query
         }).then( response => {
           /* eslint-disable no-console */
-          console.log(response.data.items);
+          //console.log(response.data.items);
           /* eslint-disable no-console */
           for (var i = 0; i < response.data.items.length; i++) {
             linkRef.push({
@@ -154,7 +156,7 @@ export default {
       headers: { 'Ocp-Apim-Subscription-Key' : 'd71d7b2684334daca5987c838e432b2b' }
       }).then( response => {
         /* eslint-disable no-console */
-        console.log(response.data);
+        //console.log(response.data);
         /* eslint-disable no-console */
         for (var i = 0; i < response.data.webPages.value.length; i++) {
           linkRef.push({
@@ -190,23 +192,6 @@ export default {
         this.results.push(this.links);
         console.log('0');
       }
-
-      /*this.links.sort(function(a, b) {
-        var linkA = a.url.toUpperCase(); // ignore upper and lowercase
-        var linkB = b.url.toUpperCase(); // ignore upper and lowercase
-        if (linkA < linkB) {
-          return -1;
-        }
-        if (linkA > linkB) {
-          return 1;
-        }
-
-        // links must be equal
-        return 0;
-      }); */
-
-      //this.results.push(this.links);
-      console.log(this.results);
     }
   }
 }

@@ -9,7 +9,6 @@ import Vuetify from 'vuetify'
 Vue.use(Vuetify)
 Vue.use(VueFire)
 
-
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
