@@ -2,7 +2,7 @@
   <v-container flex>
     <v-layout row>
       <v-flex xs12>
-        <v-card>
+        <v-card class="animated fadeInRight">
           <v-form v-model="valid" ref="form" class="ma-3" lazy-validation>
             <v-container grid-list-xl fluid>
               <v-layout wrap>
