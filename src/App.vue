@@ -1,6 +1,14 @@
 <template>
   <div id="app">
     <v-app light>
+      <v-layout
+        column
+        align-center
+        class="white--text mt-4"
+      >
+        <h1 class="white--text mb-2 display-4 text-xs-center">Search Engine</h1>
+        <div class="subheading mb-3 text-xs-center">Powered by VueJs 2 and Firebase</div>
+      </v-layout>
       <SearchEngine/>
     </v-app>
   </div>

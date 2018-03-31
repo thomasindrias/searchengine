@@ -1,15 +1,14 @@
 <template>
-  <v-container fluid>
+  <v-container flex>
     <v-layout row>
       <v-flex xs12>
         <v-card>
-          <h1 class="mb-2 display-3 text-xs-center">Search Engine</h1>
           <v-form v-model="valid" ref="form" class="ma-3" lazy-validation>
             <v-container grid-list-xl fluid>
               <v-layout wrap>
                 <v-flex xs12 sm6>
                   <v-text-field
-                    label="Search"
+                    label="search"
                     v-model="query"
                     :rules="searchRules"
                     required
@@ -43,6 +42,8 @@
             :headers="headers"
             :items="results[0]"
             :rows-per-page-items="tableOpt"
+            :loading="loading"
+            v-if="onLoad"
             class="elevation-1 headline"
           >
             <template slot="items" slot-scope="props">
@@ -63,7 +64,6 @@
 
 <script>
 import Firebase from 'firebase'
-import toastr from 'toastr'
 import axios from 'axios'
 
 let config = {
@@ -102,6 +102,8 @@ export default {
         }
       ],
       query: '',
+      loading: false,
+      onLoad: false,
       valid: true,
       searchRules: [
         v => !!v || 'Search required'
@@ -122,15 +124,18 @@ export default {
   },
   methods: {
     submit () {
-        if (this.$refs.form.validate()) {
-          // Native form submission is not yet supported
-          this.APIFetch(this.query);
-        }
-      },
+      //validate searchbar
+      if (this.$refs.form.validate()) {
+        this.APIFetch(this.query);
+      }
+    },
 
     APIFetch: function(query){
       this.refreshFetch();
+      this.loading = true;
+      this.onLoad = true;
 
+      //grab JSON data from APIs and push to RT DB in firebase
       axios({
         method: 'get',
         url: 'https://www.googleapis.com/customsearch/v1?key=AIzaSyDvMAQgLw1lA_cz9QuyhKCSC7cwW7cgflY&cx=009623728814563280206:dto9xyi6jdy&q=' + query
@@ -180,6 +185,7 @@ export default {
     },
 
     resultSort: function(){
+      //filter
       if(this.filter == 1) {
         this.results.push(this.queryBing);
         console.log('1');
@@ -192,6 +198,14 @@ export default {
         this.results.push(this.links);
         console.log('0');
       }
+
+      //data loader
+      setTimeout(() => {
+        this.loading = false
+        resolve({
+          results
+        })
+      }, 1000)
     }
   }
 }
