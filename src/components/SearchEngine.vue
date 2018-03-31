@@ -1,62 +1,63 @@
 <template>
-  <div class="container">
-    <div class="page-header">
-      <h1>Search Engine with Vue.js 2 and Firebase</h1>
-    </div>
-
-    <div class="card my-2">
-      <div class="card-header">
-        <h3>Search</h3>
-      </div>
-      <div class="card-body">
-        <form id="form" class="form-inline" v-on:submit.prevent="APIFetch(query, filter)">
-          <div class="form-group">
-            <input type="text" id="search" placeholder="Search here" class="form-control" v-model="query">
-          </div>
-          <div class="form-group">
-          <div class="col-auto my-1">
-            <select class="custom-select mr-sm-2" id="filter" v-model="filter">
-              <option selected>All</option>
-              <option value="1">Bing</option>
-              <option value="2">Google</option>
-            </select>
-          </div>
-        </div>
-          <input type="submit" class="btn btn-primary mx-2" value="Search">
-        </form>
-      </div>
-    </div>
-
-    <div class="card my-2">
-      <div class="card-header">
-        <h3>Search results</h3>
-      </div>
-      <div class="card-body">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>
-                Title
-              </th>
-              <th>
-                Url
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="result in results[0]">
-              <td>
-                <a v-bind:href="result.url">{{result.title}}</a>
-              </td>
-              <td>
-                {{result.url}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <v-container fluid>
+    <v-layout row>
+      <v-flex xs12>
+        <v-card>
+          <h1 class="mb-2 display-3 text-xs-center">Search Engine</h1>
+          <v-form v-model="valid" ref="form" class="ma-3" lazy-validation>
+            <v-container grid-list-xl fluid>
+              <v-layout wrap>
+                <v-flex xs12 sm6>
+                  <v-text-field
+                    label="Search"
+                    v-model="query"
+                    :rules="searchRules"
+                    required
+                    append-icon="search"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6>
+                  <v-select
+                    :items="options"
+                    v-model="filter"
+                    label="select"
+                    single-line
+                    auto
+                    append-icon="filter_list"
+                    hide-details
+                    item-text="option"
+                    item-value="val"
+                  ></v-select>
+                </v-flex>
+                <v-btn
+                  @click="submit"
+                  :disabled="!valid"
+                  class="primary"
+                >
+                  Search
+                </v-btn>
+              </v-layout>
+            </v-container>
+          </v-form>
+          <v-data-table
+            :headers="headers"
+            :items="results[0]"
+            class="elevation-1 headline"
+          >
+            <template slot="items" slot-scope="props">
+              <td><a v-bind:href="props.item.url">{{ props.item.title }}</a></td>
+              <td class="text-xs-right">{{ props.item.url }}</td>
+            </template>
+            <template slot="no-data">
+             <v-alert :value="true" color="error" icon="warning">
+               No links, please search.
+             </v-alert>
+           </template>
+          </v-data-table>
+        </v-card>
+      </v-flex>
+    </v-layout>
+</v-container>
 </template>
 
 <script>
@@ -85,15 +86,46 @@ export default {
   },
   data () {
     return {
+      headers: [
+        {
+        text: 'Links',
+        align: 'left',
+        sortable: false,
+        value: 'link'
+        },
+        {
+        text: 'Url',
+        value: 'url',
+        sortable: false,
+        align: 'right'
+        }
+      ],
       query: '',
+      valid: true,
+      searchRules: [
+        v => !!v || 'Search required'
+      ],
       filter: 0,
       queryGoogle: [],
       queryBing: [],
       results: [],
-      groupID: ''
+      groupID: '',
+      select: { option: 'All', val: 0 },
+      options: [
+          { option: 'All', val: 0 },
+          { option: 'Bing', val: 1 },
+          { option: 'Google', val: 2 }
+        ]
     }
   },
   methods: {
+    submit () {
+        if (this.$refs.form.validate()) {
+          // Native form submission is not yet supported
+          this.APIFetch(this.query);
+        }
+      },
+
     APIFetch: function(query){
       this.refreshFetch();
 
@@ -119,7 +151,7 @@ export default {
       axios({
       method: 'get',
       url: 'https://api.cognitive.microsoft.com/bing/v7.0/search?q=' + query + '&responseFilter=webpages',
-      headers: { 'Ocp-Apim-Subscription-Key' : '7f0afa4ee261486794c2106b68dea25e' }
+      headers: { 'Ocp-Apim-Subscription-Key' : 'd71d7b2684334daca5987c838e432b2b' }
       }).then( response => {
         /* eslint-disable no-console */
         console.log(response.data);
@@ -143,7 +175,6 @@ export default {
       this.results = [];
       this.queryBing = [];
       this.queryGoogle = [];
-      toastr.success("Search completed");
     },
 
     resultSort: function(){
@@ -183,18 +214,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
 a {
-  color: #42b983;
+  text-decoration: none;
 }
+
 </style>
