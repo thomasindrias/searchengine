@@ -1,6 +1,6 @@
-# searchengine
+# Search Engine
 
-> A Vue.js project
+> A Vue.js project done with Real Time Database from FireBase and Promise through Axios.Js
 
 ## Build Setup
 
